@@ -20,8 +20,12 @@ all the corresponding data.
 
 `parameters` contains all the simulation information, including the number of
 replications, the type of simulation, the hydrological years to sample from, etc.
+
+### Keyword Arguments
+`async` is a boolean that sets whether SDDP.jl will run in parallel. Currently
+recommended to be set to false.
 """
-function simulate(JADEmodel::JADEModel, parameters::JADESimulation)
+function simulate(JADEmodel::JADEModel, parameters::JADESimulation; async::Bool=false)
     d = JADEmodel.d
     sddpm = JADEmodel.sddpm
 
@@ -160,6 +164,7 @@ function simulate(JADEmodel::JADEModel, parameters::JADESimulation)
                     terminate_on_cycle = false,
                     terminate_on_dummy_leaf = false,
                 ),
+                parallel_scheme = async ? SDDP.Threaded() : SDDP.Serial(),
                 incoming_state = initial_state,
             )
 
@@ -196,6 +201,7 @@ function simulate(JADEmodel::JADEModel, parameters::JADESimulation)
                     terminate_on_cycle = false,
                     terminate_on_dummy_leaf = false,
                 ),
+                parallel_scheme = async ? SDDP.Threaded() : SDDP.Serial(),
                 incoming_state = initial_state,
             )
 
@@ -284,6 +290,7 @@ function simulate(JADEmodel::JADEModel, parameters::JADESimulation)
                 get_primal,
                 sampling_scheme = SDDP.Historical(sample_paths),
                 custom_recorders = get_dual,
+                parallel_scheme = async ? SDDP.Threaded() : SDDP.Serial(),
                 incoming_state = initial_state,
             )
 
@@ -331,6 +338,7 @@ function simulate(JADEmodel::JADEModel, parameters::JADESimulation)
                 get_primal,
                 sampling_scheme = SDDP.Historical(sample_path),
                 custom_recorders = get_dual,
+                parallel_scheme = async ? SDDP.Threaded() : SDDP.Serial(),
                 incoming_state = initial_state,
             )
         end

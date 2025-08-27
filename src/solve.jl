@@ -249,8 +249,8 @@ function optimize_policy!(
 
         parallel_scheme = nothing
         if async
-            if d.parallel_optimizer == nothing
-                parallel_scheme = SDDP.Asynchronous()
+            if !hasproperty(d, :parallel_scheme)
+                parallel_scheme = SDDP.Threaded()
             else
                 parallel_scheme = SDDP.Asynchronous() do m
                     optimizer = d.parallel_optimizer()
@@ -264,6 +264,7 @@ function optimize_policy!(
         end
 
         if d.rundata.steady_state && !solveoptions.reset_starting_levels
+            println("in first location")
             solveresults = SDDP.train(
                 sddpm,
                 iteration_limit = solveoptions.iterations,
@@ -277,6 +278,7 @@ function optimize_policy!(
                 forward_pass = SDDP.DefaultForwardPass(; include_last_node = false),
             )
         else
+            println("in second location")
             solveresults = SDDP.train(
                 sddpm,
                 iteration_limit = solveoptions.iterations,
