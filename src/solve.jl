@@ -97,7 +97,7 @@ function optimize_policy!(
         )
 
         check_rundata(d.rundata, previous_rundata, :eoh)
-        bf = sddpm[final_week].bellman_function
+        bf = sddpm[d.rundata.number_of_wks].bellman_function
         if JuMP.has_upper_bound(bf.global_theta.theta)
             JuMP.delete_upper_bound(bf.global_theta.theta)
         end
