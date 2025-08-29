@@ -25,9 +25,10 @@ replications, the type of simulation, the hydrological years to sample from, etc
 `async` is a boolean that sets whether SDDP.jl will run in parallel. Currently
 recommended to be set to false.
 """
-function simulate(JADEmodel::JADEModel, parameters::JADESimulation; async::Bool=false)
+function simulate(JADEmodel::JADEModel, parameters::JADESimulation; multithreaded::Bool=false)
     d = JADEmodel.d
     sddpm = JADEmodel.sddpm
+    parallel_scheme = multithreaded ? SDDP.Threaded() : SDDP.Serial()
 
     check_settings_compatibility(rundata = d.rundata, simulation = parameters)
 
@@ -164,7 +165,7 @@ function simulate(JADEmodel::JADEModel, parameters::JADESimulation; async::Bool=
                     terminate_on_cycle = false,
                     terminate_on_dummy_leaf = false,
                 ),
-                parallel_scheme = async ? SDDP.Threaded() : SDDP.Serial(),
+                parallel_scheme = parallel_scheme,
                 incoming_state = initial_state,
             )
 
@@ -201,7 +202,7 @@ function simulate(JADEmodel::JADEModel, parameters::JADESimulation; async::Bool=
                     terminate_on_cycle = false,
                     terminate_on_dummy_leaf = false,
                 ),
-                parallel_scheme = async ? SDDP.Threaded() : SDDP.Serial(),
+                parallel_scheme = parallel_scheme,
                 incoming_state = initial_state,
             )
 
@@ -290,7 +291,7 @@ function simulate(JADEmodel::JADEModel, parameters::JADESimulation; async::Bool=
                 get_primal,
                 sampling_scheme = SDDP.Historical(sample_paths),
                 custom_recorders = get_dual,
-                parallel_scheme = async ? SDDP.Threaded() : SDDP.Serial(),
+                parallel_scheme = parallel_scheme,
                 incoming_state = initial_state,
             )
 
@@ -338,7 +339,7 @@ function simulate(JADEmodel::JADEModel, parameters::JADESimulation; async::Bool=
                 get_primal,
                 sampling_scheme = SDDP.Historical(sample_path),
                 custom_recorders = get_dual,
-                parallel_scheme = async ? SDDP.Threaded() : SDDP.Serial(),
+                parallel_scheme = parallel_scheme,
                 incoming_state = initial_state,
             )
         end

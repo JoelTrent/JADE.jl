@@ -34,12 +34,13 @@ recommended to be set to false.
 function optimize_policy!(
     JADEmodel::JADEModel,
     solveoptions::JADESolveOptions;
-    async::Bool = false,
+    multithreaded::Bool = false,
     print_level::Int = 1,
 )
     d = JADEmodel.d
     sddpm = JADEmodel.sddpm
     previous_rundata = nothing
+    parallel_scheme = multithreaded ? SDDP.Threaded() : SDDP.Serial()
 
     check_settings_compatibility(rundata = d.rundata, solveoptions = solveoptions)
 
@@ -245,22 +246,6 @@ function optimize_policy!(
                 push!(sample_path, ((t - 1) % d.rundata.number_of_wks + 1, s_inflows))
             end
             push!(sample_paths, sample_path)
-        end
-
-        parallel_scheme = nothing
-        if async
-            if !hasproperty(d, :parallel_scheme)
-                parallel_scheme = SDDP.Threaded()
-            else
-                parallel_scheme = SDDP.Asynchronous() do m
-                    optimizer = d.parallel_optimizer()
-                    for node in values(m.nodes)
-                        set_optimizer(node.subproblem, optimizer)
-                    end
-                end
-            end
-        else
-            parallel_scheme = SDDP.Serial()
         end
 
         if d.rundata.steady_state && !solveoptions.reset_starting_levels
