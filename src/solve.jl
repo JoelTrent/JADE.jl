@@ -264,7 +264,6 @@ function optimize_policy!(
         end
 
         if d.rundata.steady_state && !solveoptions.reset_starting_levels
-            println("in first location")
             solveresults = SDDP.train(
                 sddpm,
                 iteration_limit = solveoptions.iterations,
@@ -278,7 +277,6 @@ function optimize_policy!(
                 forward_pass = SDDP.DefaultForwardPass(; include_last_node = false),
             )
         else
-            println("in second location")
             solveresults = SDDP.train(
                 sddpm,
                 iteration_limit = solveoptions.iterations,
